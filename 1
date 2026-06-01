@@ -1,0 +1,878 @@
+# UML Lab Exam Quick Cheatsheet
+
+시험 직전에는 문제를 외우려고 하지 말고, 아래 **패턴**을 외우는 게 더 안전합니다.
+
+---
+
+## 1. UML Symbols
+
+| UML | Java |
+|---|---|
+| `+` | `public` |
+| `-` | `private` |
+| `#` | `protected` |
+| `ClassA <|-- ClassB` | `class ClassB extends ClassA` |
+| `Interface <|.. ClassA` | `class ClassA implements Interface` |
+| `<<abstract>>` | `abstract class` |
+| `<<interface>>` | `interface` |
+| `static` field/method | belongs to the class, not each object |
+
+---
+
+## 2. Most Important Coding Skeleton
+
+이 형태가 거의 모든 UML 문제의 기본입니다.
+
+```java
+public class ClassName {
+    private String name;
+    private int value;
+
+    public ClassName() {
+        name = "No name";
+        value = 0;
+    }
+
+    public ClassName(String name, int value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void writeOutput() {
+        System.out.println("Name: " + name);
+        System.out.println("Value: " + value);
+    }
+
+    public boolean equals(ClassName other) {
+        return name.equalsIgnoreCase(other.name)
+            && value == other.value;
+    }
+}
+```
+
+Memorize:
+
+- Constructor has **no return type**.
+- Use `this.field = parameter;`.
+- Fields are usually `private`.
+- Methods in UML with `+` become `public`.
+
+---
+
+## 3. Static Pattern
+
+Likely problem: `RoomOccupancy`, `SavingsAccount`, total count.
+
+```java
+public class RoomOccupancy {
+    private int roomNumber;
+    private int peopleInRoom;
+    private static int totalNumber = 0;
+
+    public RoomOccupancy(int roomNumber, int peopleInRoom) {
+        this.roomNumber = roomNumber;
+        this.peopleInRoom = peopleInRoom;
+        totalNumber += peopleInRoom;
+    }
+
+    public void addOneToRoom() {
+        peopleInRoom++;
+        totalNumber++;
+    }
+
+    public void removeOneFromRoom() {
+        if (peopleInRoom > 0) {
+            peopleInRoom--;
+            totalNumber--;
+        }
+    }
+
+    public static int getTotal() {
+        return totalNumber;
+    }
+}
+```
+
+Memorize:
+
+- `static` value is shared by all objects.
+- Static method call: `RoomOccupancy.getTotal()`.
+- Non-static method call: `roomA.addOneToRoom()`.
+
+---
+
+## 4. Array of Objects Pattern
+
+Likely problem: sales associates, students, species list.
+
+```java
+SalesAssociate[] team = new SalesAssociate[count];
+
+for (int i = 0; i < team.length; i++) {
+    team[i] = new SalesAssociate();
+    team[i].readInput();
+}
+
+double sum = 0;
+for (int i = 0; i < team.length; i++) {
+    sum += team[i].getSales();
+}
+
+double average = sum / team.length;
+```
+
+Memorize:
+
+- `new SalesAssociate[count]` only creates references.
+- You still need `team[i] = new SalesAssociate();`.
+- Use `.length`, not `.length()`.
+
+---
+
+## 5. 2D Array Pattern
+
+Likely problem: `TimeBook`, `findFigure`, table total.
+
+```java
+for (int row = 0; row < table.length; row++) {
+    for (int col = 0; col < table[row].length; col++) {
+        System.out.print(table[row][col] + " ");
+    }
+    System.out.println();
+}
+```
+
+Average of all values:
+
+```java
+double sum = 0;
+int count = 0;
+
+for (int r = 0; r < picture.length; r++) {
+    for (int c = 0; c < picture[r].length; c++) {
+        sum += picture[r][c];
+        count++;
+    }
+}
+
+double average = sum / count;
+```
+
+Memorize:
+
+- Outer loop: rows.
+- Inner loop: columns.
+- `array.length` is row count.
+- `array[row].length` is column count for that row.
+
+---
+
+## 6. Inheritance Pattern
+
+Likely problem: `Person -> Student -> Undergraduate`, `PayCalculator -> RegularPay/HazardPay`.
+
+```java
+public class Student extends Person {
+    private int studentNumber;
+
+    public Student() {
+        super();
+        studentNumber = 0;
+    }
+
+    public Student(String name, int studentNumber) {
+        super(name);
+        this.studentNumber = studentNumber;
+    }
+
+    @Override
+    public void writeOutput() {
+        super.writeOutput();
+        System.out.println("Student Number: " + studentNumber);
+    }
+}
+```
+
+Memorize:
+
+- `extends` means child class.
+- `super(...)` calls parent constructor.
+- `super(...)` must be the first line in the constructor.
+- `super.methodName()` calls the parent method.
+- Override means same method name + same parameters.
+
+---
+
+## 7. Abstract Class Pattern
+
+Likely problem: `PayCalculator`.
+
+```java
+public abstract class PayCalculator {
+    private double payRate;
+
+    public PayCalculator(double payRate) {
+        this.payRate = payRate;
+    }
+
+    public double computePay(double hours) {
+        return payRate * hours;
+    }
+}
+
+public class HazardPay extends PayCalculator {
+    public HazardPay(double payRate) {
+        super(payRate);
+    }
+
+    @Override
+    public double computePay(double hours) {
+        return super.computePay(hours) * 1.5;
+    }
+}
+```
+
+Memorize:
+
+- Abstract class cannot be directly created with `new`.
+- A normal method can exist inside an abstract class.
+- Child class can reuse parent calculation with `super.computePay(hours)`.
+
+---
+
+## 8. Interface Pattern
+
+Likely problem: `Measurable`, shape classes.
+
+```java
+public interface Measurable {
+    double getArea();
+    double getPerimeter();
+}
+
+public class Rectangle implements Measurable {
+    private double width;
+    private double height;
+
+    public Rectangle(double width, double height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    public double getArea() {
+        return width * height;
+    }
+
+    public double getPerimeter() {
+        return 2 * (width + height);
+    }
+}
+```
+
+Memorize:
+
+- Interface methods are implemented by the class.
+- Use `implements`, not `extends`.
+- Interface is good for polymorphism:
+
+```java
+Measurable[] arr = new Measurable[2];
+arr[0] = new Rectangle(3, 4);
+```
+
+---
+
+## 9. Try-Catch Pattern
+
+Likely problem: calculator, milk, widget, file input.
+
+```java
+try {
+    int result = numerator / denominator;
+    System.out.println(result);
+} catch (ArithmeticException e) {
+    System.out.println("Division by zero.");
+} catch (Exception e) {
+    System.out.println("Error: " + e.getMessage());
+}
+```
+
+Memorize:
+
+- Code that may fail goes inside `try`.
+- Specific `catch` first.
+- General `catch(Exception e)` last.
+
+---
+
+## 10. Custom Exception Pattern
+
+Likely problem: `DivideByZeroException`, `NegativeNumberException`.
+
+```java
+public class DivideByZeroException extends Exception {
+    public DivideByZeroException() {
+        super("Division by zero.");
+    }
+
+    public DivideByZeroException(String message) {
+        super(message);
+    }
+}
+```
+
+Using it:
+
+```java
+public static double divide(double a, double b)
+        throws DivideByZeroException {
+    if (b == 0) {
+        throw new DivideByZeroException();
+    }
+    return a / b;
+}
+```
+
+Calling it:
+
+```java
+try {
+    double result = divide(10, 0);
+    System.out.println(result);
+} catch (DivideByZeroException e) {
+    System.out.println(e.getMessage());
+}
+```
+
+Memorize:
+
+- Exception class: `extends Exception`.
+- Method header: `throws ExceptionName`.
+- Actually create error: `throw new ExceptionName();`.
+- Handle it: `catch (ExceptionName e)`.
+
+---
+
+## 11. File I/O Pattern
+
+Likely problem: copy file, read CSV, read text.
+
+```java
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class FileInputDemo {
+    public static void main(String[] args) {
+        try {
+            Scanner input = new Scanner(new File("input.txt"));
+
+            while (input.hasNextLine()) {
+                String line = input.nextLine();
+                System.out.println(line);
+            }
+
+            input.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+        }
+    }
+}
+```
+
+Writing file:
+
+```java
+import java.io.PrintWriter;
+import java.io.FileNotFoundException;
+
+try {
+    PrintWriter output = new PrintWriter("output.txt");
+    output.println("Hello");
+    output.close();
+} catch (FileNotFoundException e) {
+    System.out.println("Cannot open file.");
+}
+```
+
+Memorize:
+
+- Reading: `Scanner input = new Scanner(new File("file.txt"));`
+- Writing: `PrintWriter output = new PrintWriter("file.txt");`
+- Always close files.
+- File code usually needs `try-catch`.
+
+---
+
+## 12. Exam Solving Order
+
+When you see a UML problem:
+
+1. Make one `.java` file for each public class.
+2. Write fields first.
+3. Write constructors.
+4. Write getters/setters.
+5. Write required calculation methods.
+6. Add inheritance arrows: `extends` or `implements`.
+7. Write demo class with `main`.
+8. Test with simple values.
+
+---
+
+## The 7 Patterns To Memorize First
+
+1. Basic class pattern: fields, constructor, getter, setter.
+2. Static total pattern: shared count or shared balance.
+3. Array of objects pattern: create array, then create each object.
+4. 2D array nested loop pattern.
+5. Inheritance pattern: `extends`, `super`, `@Override`.
+6. Custom exception pattern: `extends Exception`, `throw`, `throws`, `catch`.
+7. File I/O pattern: `Scanner(new File(...))`, `PrintWriter`, `try-catch`.
+
+# UML Lab Exam Quick Cheatsheet
+
+시험 직전에는 문제를 외우려고 하지 말고, 아래 **패턴**을 외우는 게 더 안전합니다.
+
+---
+
+## 1. UML Symbols
+
+| UML | Java |
+|---|---|
+| `+` | `public` |
+| `-` | `private` |
+| `#` | `protected` |
+| `ClassA <|-- ClassB` | `class ClassB extends ClassA` |
+| `Interface <|.. ClassA` | `class ClassA implements Interface` |
+| `<<abstract>>` | `abstract class` |
+| `<<interface>>` | `interface` |
+| `static` field/method | belongs to the class, not each object |
+
+---
+
+## 2. Most Important Coding Skeleton
+
+이 형태가 거의 모든 UML 문제의 기본입니다.
+
+```java
+public class ClassName {
+    private String name;
+    private int value;
+
+    public ClassName() {
+        name = "No name";
+        value = 0;
+    }
+
+    public ClassName(String name, int value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void writeOutput() {
+        System.out.println("Name: " + name);
+        System.out.println("Value: " + value);
+    }
+
+    public boolean equals(ClassName other) {
+        return name.equalsIgnoreCase(other.name)
+            && value == other.value;
+    }
+}
+```
+
+Memorize:
+
+- Constructor has **no return type**.
+- Use `this.field = parameter;`.
+- Fields are usually `private`.
+- Methods in UML with `+` become `public`.
+
+---
+
+## 3. Static Pattern
+
+Likely problem: `RoomOccupancy`, `SavingsAccount`, total count.
+
+```java
+public class RoomOccupancy {
+    private int roomNumber;
+    private int peopleInRoom;
+    private static int totalNumber = 0;
+
+    public RoomOccupancy(int roomNumber, int peopleInRoom) {
+        this.roomNumber = roomNumber;
+        this.peopleInRoom = peopleInRoom;
+        totalNumber += peopleInRoom;
+    }
+
+    public void addOneToRoom() {
+        peopleInRoom++;
+        totalNumber++;
+    }
+
+    public void removeOneFromRoom() {
+        if (peopleInRoom > 0) {
+            peopleInRoom--;
+            totalNumber--;
+        }
+    }
+
+    public static int getTotal() {
+        return totalNumber;
+    }
+}
+```
+
+Memorize:
+
+- `static` value is shared by all objects.
+- Static method call: `RoomOccupancy.getTotal()`.
+- Non-static method call: `roomA.addOneToRoom()`.
+
+---
+
+## 4. Array of Objects Pattern
+
+Likely problem: sales associates, students, species list.
+
+```java
+SalesAssociate[] team = new SalesAssociate[count];
+
+for (int i = 0; i < team.length; i++) {
+    team[i] = new SalesAssociate();
+    team[i].readInput();
+}
+
+double sum = 0;
+for (int i = 0; i < team.length; i++) {
+    sum += team[i].getSales();
+}
+
+double average = sum / team.length;
+```
+
+Memorize:
+
+- `new SalesAssociate[count]` only creates references.
+- You still need `team[i] = new SalesAssociate();`.
+- Use `.length`, not `.length()`.
+
+---
+
+## 5. 2D Array Pattern
+
+Likely problem: `TimeBook`, `findFigure`, table total.
+
+```java
+for (int row = 0; row < table.length; row++) {
+    for (int col = 0; col < table[row].length; col++) {
+        System.out.print(table[row][col] + " ");
+    }
+    System.out.println();
+}
+```
+
+Average of all values:
+
+```java
+double sum = 0;
+int count = 0;
+
+for (int r = 0; r < picture.length; r++) {
+    for (int c = 0; c < picture[r].length; c++) {
+        sum += picture[r][c];
+        count++;
+    }
+}
+
+double average = sum / count;
+```
+
+Memorize:
+
+- Outer loop: rows.
+- Inner loop: columns.
+- `array.length` is row count.
+- `array[row].length` is column count for that row.
+
+---
+
+## 6. Inheritance Pattern
+
+Likely problem: `Person -> Student -> Undergraduate`, `PayCalculator -> RegularPay/HazardPay`.
+
+```java
+public class Student extends Person {
+    private int studentNumber;
+
+    public Student() {
+        super();
+        studentNumber = 0;
+    }
+
+    public Student(String name, int studentNumber) {
+        super(name);
+        this.studentNumber = studentNumber;
+    }
+
+    @Override
+    public void writeOutput() {
+        super.writeOutput();
+        System.out.println("Student Number: " + studentNumber);
+    }
+}
+```
+
+Memorize:
+
+- `extends` means child class.
+- `super(...)` calls parent constructor.
+- `super(...)` must be the first line in the constructor.
+- `super.methodName()` calls the parent method.
+- Override means same method name + same parameters.
+
+---
+
+## 7. Abstract Class Pattern
+
+Likely problem: `PayCalculator`.
+
+```java
+public abstract class PayCalculator {
+    private double payRate;
+
+    public PayCalculator(double payRate) {
+        this.payRate = payRate;
+    }
+
+    public double computePay(double hours) {
+        return payRate * hours;
+    }
+}
+
+public class HazardPay extends PayCalculator {
+    public HazardPay(double payRate) {
+        super(payRate);
+    }
+
+    @Override
+    public double computePay(double hours) {
+        return super.computePay(hours) * 1.5;
+    }
+}
+```
+
+Memorize:
+
+- Abstract class cannot be directly created with `new`.
+- A normal method can exist inside an abstract class.
+- Child class can reuse parent calculation with `super.computePay(hours)`.
+
+---
+
+## 8. Interface Pattern
+
+Likely problem: `Measurable`, shape classes.
+
+```java
+public interface Measurable {
+    double getArea();
+    double getPerimeter();
+}
+
+public class Rectangle implements Measurable {
+    private double width;
+    private double height;
+
+    public Rectangle(double width, double height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    public double getArea() {
+        return width * height;
+    }
+
+    public double getPerimeter() {
+        return 2 * (width + height);
+    }
+}
+```
+
+Memorize:
+
+- Interface methods are implemented by the class.
+- Use `implements`, not `extends`.
+- Interface is good for polymorphism:
+
+```java
+Measurable[] arr = new Measurable[2];
+arr[0] = new Rectangle(3, 4);
+```
+
+---
+
+## 9. Try-Catch Pattern
+
+Likely problem: calculator, milk, widget, file input.
+
+```java
+try {
+    int result = numerator / denominator;
+    System.out.println(result);
+} catch (ArithmeticException e) {
+    System.out.println("Division by zero.");
+} catch (Exception e) {
+    System.out.println("Error: " + e.getMessage());
+}
+```
+
+Memorize:
+
+- Code that may fail goes inside `try`.
+- Specific `catch` first.
+- General `catch(Exception e)` last.
+
+---
+
+## 10. Custom Exception Pattern
+
+Likely problem: `DivideByZeroException`, `NegativeNumberException`.
+
+```java
+public class DivideByZeroException extends Exception {
+    public DivideByZeroException() {
+        super("Division by zero.");
+    }
+
+    public DivideByZeroException(String message) {
+        super(message);
+    }
+}
+```
+
+Using it:
+
+```java
+public static double divide(double a, double b)
+        throws DivideByZeroException {
+    if (b == 0) {
+        throw new DivideByZeroException();
+    }
+    return a / b;
+}
+```
+
+Calling it:
+
+```java
+try {
+    double result = divide(10, 0);
+    System.out.println(result);
+} catch (DivideByZeroException e) {
+    System.out.println(e.getMessage());
+}
+```
+
+Memorize:
+
+- Exception class: `extends Exception`.
+- Method header: `throws ExceptionName`.
+- Actually create error: `throw new ExceptionName();`.
+- Handle it: `catch (ExceptionName e)`.
+
+---
+
+## 11. File I/O Pattern
+
+Likely problem: copy file, read CSV, read text.
+
+```java
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class FileInputDemo {
+    public static void main(String[] args) {
+        try {
+            Scanner input = new Scanner(new File("input.txt"));
+
+            while (input.hasNextLine()) {
+                String line = input.nextLine();
+                System.out.println(line);
+            }
+
+            input.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+        }
+    }
+}
+```
+
+Writing file:
+
+```java
+import java.io.PrintWriter;
+import java.io.FileNotFoundException;
+
+try {
+    PrintWriter output = new PrintWriter("output.txt");
+    output.println("Hello");
+    output.close();
+} catch (FileNotFoundException e) {
+    System.out.println("Cannot open file.");
+}
+```
+
+Memorize:
+
+- Reading: `Scanner input = new Scanner(new File("file.txt"));`
+- Writing: `PrintWriter output = new PrintWriter("file.txt");`
+- Always close files.
+- File code usually needs `try-catch`.
+
+---
+
+## 12. Exam Solving Order
+
+When you see a UML problem:
+
+1. Make one `.java` file for each public class.
+2. Write fields first.
+3. Write constructors.
+4. Write getters/setters.
+5. Write required calculation methods.
+6. Add inheritance arrows: `extends` or `implements`.
+7. Write demo class with `main`.
+8. Test with simple values.
+
+---
+
+## The 7 Patterns To Memorize First
+
+1. Basic class pattern: fields, constructor, getter, setter.
+2. Static total pattern: shared count or shared balance.
+3. Array of objects pattern: create array, then create each object.
+4. 2D array nested loop pattern.
+5. Inheritance pattern: `extends`, `super`, `@Override`.
+6. Custom exception pattern: `extends Exception`, `throw`, `throws`, `catch`.
+7. File I/O pattern: `Scanner(new File(...))`, `PrintWriter`, `try-catch`.
+
